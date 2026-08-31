@@ -67,4 +67,8 @@ jobs:
         with:
           name: ${{ github.event.inputs.app_name }}-Customer-APK
           # Yahan bhi path theek kar diya hai
+          path: build/app/outputs/flutter-apk/app-release.apk        
+        with:
+          name: ${{ github.event.inputs.app_name }}-Customer-APK
+          # Yahan bhi path theek kar diya hai
           path: build/app/outputs/flutter-apk/app-release.apk
