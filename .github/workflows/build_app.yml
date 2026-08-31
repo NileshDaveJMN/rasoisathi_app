@@ -1,0 +1,44 @@
+name: Build Kitchen APK
+on:
+  workflow_dispatch:
+    inputs:
+      kitchen_id:
+        description: 'Kitchen ID'
+        required: true
+      app_name:
+        description: 'App Name'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x'
+          channel: 'stable'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run App Factory Script
+        run: |
+          node generate_app.js --id="${{ github.event.inputs.kitchen_id }}" --name="${{ github.event.inputs.app_name }}"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.inputs.app_name }}-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
