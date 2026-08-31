@@ -33,6 +33,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Auto-Generate All Missing Flutter Files
+        run: flutter create .
+
       - name: Run App Factory Script (Customization)
         run: |
           node generate_app.js --id="${{ github.event.inputs.kitchen_id }}" --name="${{ github.event.inputs.app_name }}"
