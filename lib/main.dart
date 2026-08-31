@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'config.dart'; // Config file link kar di
+import 'package:url_launcher/url_launcher.dart';
+import 'config.dart';
 
 void main() {
   runApp(const CustomerApp());
@@ -12,7 +14,7 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: AppConfig.appName, // Yahan dynamic naam aayega
+      title: AppConfig.appName,
       theme: ThemeData(
         primaryColor: AppConfig.primaryColor,
         scaffoldBackgroundColor: const Color(0xFF121212),
@@ -40,14 +42,48 @@ class _WebViewScreenState extends State<WebViewScreen> {
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFF121212))
-      ..loadRequest(Uri.parse(AppConfig.startUrl)); // Yahan dynamic URL aayega
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) async {
+            // Agar link me pdf, download, ya print hai, toh use phone ke browser me kholo
+            if (request.url.toLowerCase().contains('.pdf') ||
+                request.url.toLowerCase().contains('download') ||
+                request.url.toLowerCase().contains('invoice') ||
+                request.url.toLowerCase().contains('print')) {
+
+              final Uri url = Uri.parse(request.url);
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+              return NavigationDecision.prevent; // WebView ko wo link kholne se roko
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(AppConfig.startUrl));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: WebViewWidget(controller: controller),
+    // PopScope phone ke hardware back button ko handle karta hai
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+
+        // Agar webview me history hai, toh peeche jao
+        if (await controller.canGoBack()) {
+          await controller.goBack();
+        } else {
+          // Agar history khatam, toh app close kardo
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: WebViewWidget(controller: controller),
+        ),
       ),
     );
   }

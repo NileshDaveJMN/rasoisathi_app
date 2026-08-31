@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   webview_flutter: ^4.14.1
+  url_launcher: ^6.2.5  # Ye nayi line add karein
 
 # Ek hi dev_dependencies block hona chahiye
 dev_dependencies:
