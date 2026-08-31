@@ -1,4 +1,4 @@
-name: Build Customer App
+name: Build Kitchen App
 on:
   workflow_dispatch:
     inputs:
@@ -18,7 +18,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Yahan se working-directory hata diya hai kyunki ye root me hi hai
+    defaults:
+      run:
+        working-directory: ./partner_app
 
     steps:
       - name: Checkout Code
@@ -56,15 +58,14 @@ jobs:
           echo "  image_path: 'assets/app_icon.png'" >> flutter_launcher_icons.yaml
           flutter pub run flutter_launcher_icons:main
 
-      - name: Run App Factory Script
+      - name: Run Kitchen App Factory Script
         run: node generate_app.js --id="${{ github.event.inputs.kitchen_id }}" --name="${{ github.event.inputs.app_name }}" --color="${{ github.event.inputs.theme_color }}"
 
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Upload APK Artifact
+      - name: Upload Kitchen APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.app_name }}-Customer-APK
-          # Yahan bhi path theek kar diya hai
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: ${{ github.event.inputs.app_name }}-Kitchen-APK
+          path: partner_app/build/app/outputs/flutter-apk/app-release.apk
