@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -29,16 +29,19 @@ jobs:
           channel: 'stable'
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Run App Factory Script
+      - name: Run App Factory Script (Customization)
         run: |
           node generate_app.js --id="${{ github.event.inputs.kitchen_id }}" --name="${{ github.event.inputs.app_name }}"
 
+      - name: Build APK (Creating Final App)
+        run: flutter build apk --release
+
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.app_name }}-APK
           path: build/app/outputs/flutter-apk/app-release.apk
