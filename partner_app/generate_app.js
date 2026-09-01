@@ -30,7 +30,18 @@ fs.writeFileSync(`${configDir}/config.dart`, configContent);
 const manifestPath = './android/app/src/main/AndroidManifest.xml';
 if (fs.existsSync(manifestPath)) {
     let manifest = fs.readFileSync(manifestPath, 'utf8');
+
+    // App ka naam update karein
     manifest = manifest.replace(/android:label="[^"]*"/, `android:label="${appName}"`);
+
+    // GPS permissions inject karein (agar pehle se nahi hain)
+    if (!manifest.includes('ACCESS_FINE_LOCATION')) {
+        manifest = manifest.replace(
+            '<application',
+            '<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <application'
+        );
+    }
+
     fs.writeFileSync(manifestPath, manifest);
 }
 console.log('🎉 Kitchen App Config Complete!');
